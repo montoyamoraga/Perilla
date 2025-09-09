@@ -13,7 +13,7 @@ void Perilla::setPatita(uint8_t nuevaPatita)
 void Perilla::setRangoLeido(uint16_t nuevoValorLeidoMin, uint16_t nuevoValorLeidoMax)
 {
     valorLeidoMin = nuevoValorLeidoMin;
-    valorLeidoMax = nuevoValorLeidoMax
+    valorLeidoMax = nuevoValorLeidoMax;
 }
 void Perilla::setRangoMapeado(uint16_t nuevoValorMapeadoMin, uint16_t nuevoValorMapeadoMax)
 {
