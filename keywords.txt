@@ -1,17 +1,16 @@
 ################################
-# Classes
+# Clases
 ################################
 
-Perilla					KEYWORD1
+Perilla	KEYWORD1
 
 ################################
-# Methods and functions
+# Metodos y funciones
 ################################
 
-placeholderMethod		KEYWORD2
-
-################################
-# Constants
-################################
-
-placeholderConstant		KEYWORD3
+setPatita	KEYWORD2
+setRangoLeido	KEYWORD2
+setRangoMapeado	KEYWORD2
+leer	KEYWORD2
+getValor	KEYWORD2
+getValorMapeado	KEYWORD2
