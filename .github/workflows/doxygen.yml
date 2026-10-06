@@ -42,15 +42,21 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
+      # instalar una version fija de doxygen,
+      # la de apt es antigua y su traduccion al espanol esta incompleta
       - name: Instalar doxygen
         run: |
-          sudo apt-get update
-          sudo apt-get install -y doxygen
+          curl -sL -o doxygen.tar.gz https://github.com/doxygen/doxygen/releases/download/Release_1_18_0/doxygen-1.18.0.linux.bin.tar.gz
+          tar xzf doxygen.tar.gz
+          echo "$PWD/doxygen-1.18.0/bin" >> "$GITHUB_PATH"
 
       - name: Generar documentacion
         run: |
           # usar la version de library.properties
           version=$(sed -n 's/^version=//p' library.properties)
+
+          # doxygen no crea carpetas anidadas
+          mkdir -p build/docs
 
           # generar una vez por idioma, en build/docs/es y build/docs/en
           for idioma in es en; do
