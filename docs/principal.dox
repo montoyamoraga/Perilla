@@ -1,0 +1,97 @@
+/**
+ * \mainpage Perilla
+ *
+ * \~spanish
+ *
+ * [English version](../en/index.html)
+ *
+ * Biblioteca para leer perillas (potenciometros) con microcontroladores,
+ * y mapear su valor a otro rango. Funciona con placas Arduino y con placas
+ * Raspberry Pi Pico, tanto desde Arduino como desde el Pico SDK.
+ *
+ * ## Conexiones
+ *
+ * Un potenciometro tiene tres patitas: una de las patitas de los extremos va
+ * a voltaje, la otra a tierra (GND), y la del medio a una entrada analoga.
+ *
+ * En Raspberry Pi Pico usa 3.3V (patita `3V3`, nunca 5V) y una de las patitas
+ * con conversor analogo-digital: GPIO 26, 27 o 28. Pico lee de 0 a 4095,
+ * no de 0 a 1023 como Arduino Uno.
+ *
+ * ## Por donde empezar
+ *
+ * - La clase Perilla tiene todo lo que necesitas para leer una perilla.
+ * - En la pagina de ejemplos hay ejemplos para Arduino y para Pico SDK.
+ * - El espacio de nombres PerillaHardware explica como agregar otra plataforma.
+ *
+ * \~english
+ *
+ * [Versión en español](../es/index.html)
+ *
+ * Library for reading knobs (potentiometers) with microcontrollers, and
+ * mapping their value to another range. It works with Arduino boards and with
+ * Raspberry Pi Pico boards, both from Arduino and from the Pico SDK.
+ *
+ * ## Wiring
+ *
+ * A potentiometer has three legs: one of the outer legs goes to voltage, the
+ * other to ground (GND), and the middle one to an analog input.
+ *
+ * On Raspberry Pi Pico use 3.3V (the `3V3` pin, never 5V) and one of the pins
+ * with an analog-to-digital converter: GPIO 26, 27 or 28. Pico reads 0 to
+ * 4095, not 0 to 1023 like Arduino Uno.
+ *
+ * ## Where to start
+ *
+ * - The Perilla class has everything you need to read a knob.
+ * - The examples page has examples for Arduino and for the Pico SDK.
+ * - The PerillaHardware namespace explains how to add another platform.
+ */
+
+/**
+ * \example ej00_leerPerilla/ej00_leerPerilla.ino
+ * \~spanish Arduino: imprime el valor leido y el valor mapeado.
+ * \~english Arduino: prints the read value and the mapped value.
+ */
+
+/**
+ * \example ej01_brilloLed/ej01_brilloLed.ino
+ * \~spanish Arduino: controla el brillo de un led externo en la patita 9.
+ * \~english Arduino: controls the brightness of an external LED on pin 9.
+ */
+
+/**
+ * \example ej02_umbral/ej02_umbral.ino
+ * \~spanish Arduino: enciende el led de la placa cuando la perilla pasa de la mitad.
+ * \~english Arduino: turns on the board's LED when the knob passes halfway.
+ */
+
+/**
+ * \example ej03_dosPerillas/ej03_dosPerillas.ino
+ * \~spanish Arduino: lee dos perillas a la vez, en formato para el plotter serial.
+ * \~english Arduino: reads two knobs at once, formatted for the Serial Plotter.
+ */
+
+/**
+ * \example ej00_leerPerilla/main.cpp
+ * \~spanish Pico SDK: imprime el valor leido y el valor mapeado.
+ * \~english Pico SDK: prints the read value and the mapped value.
+ */
+
+/**
+ * \example ej01_brilloLed/main.cpp
+ * \~spanish Pico SDK: controla el brillo del led de la placa.
+ * \~english Pico SDK: controls the brightness of the board's LED.
+ */
+
+/**
+ * \example ej02_umbral/main.cpp
+ * \~spanish Pico SDK: enciende el led de la placa cuando la perilla pasa de la mitad.
+ * \~english Pico SDK: turns on the board's LED when the knob passes halfway.
+ */
+
+/**
+ * \example ej03_dosPerillas/main.cpp
+ * \~spanish Pico SDK: lee dos perillas a la vez.
+ * \~english Pico SDK: reads two knobs at once.
+ */

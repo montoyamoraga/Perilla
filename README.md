@@ -1,2 +1,135 @@
 # Perilla
-Arduino library for handling potentiometers
+
+Biblioteca para leer perillas (potenciómetros) con microcontroladores, y mapear su valor a otro rango.
+
+Funciona con placas Arduino y con placas Raspberry Pi Pico, tanto desde Arduino como desde el Pico SDK.
+
+## Conexiones
+
+Un potenciómetro tiene tres patitas:
+
+- una de las patitas de los extremos va a voltaje (5V o 3.3V, según la placa).
+- la otra patita de los extremos va a tierra (GND).
+- la patita del medio va a una entrada análoga.
+
+En Raspberry Pi Pico usa 3.3V (patita `3V3`, nunca 5V) y una de las patitas con conversor análogo-digital: GPIO 26, 27 o 28.
+
+## Uso con Arduino
+
+Instala la biblioteca copiando esta carpeta en tu carpeta de bibliotecas de Arduino (por ejemplo `~/Documents/Arduino/libraries/Perilla`), o desde Arduino IDE con *Sketch → Include Library → Add .ZIP Library...*.
+
+```cpp
+#include "Perilla.h"
+
+// perilla conectada a la patita A0
+Perilla perilla(A0);
+
+void setup()
+{
+  Serial.begin(9600);
+
+  // Arduino Uno lee de 0 a 1023
+  perilla.setRangoLeido(0, 1023);
+  // convertir a porcentaje
+  perilla.setRangoMapeado(0, 100);
+}
+
+void loop()
+{
+  perilla.leer();
+
+  Serial.println(perilla.getValorMapeado());
+}
+```
+
+Ejemplo en [examples/ej00_leerPerilla/](./examples/ej00_leerPerilla/).
+
+## Uso con Raspberry Pi Pico SDK
+
+La carpeta [pico/](./pico/) tiene un proyecto CMake que compila la biblioteca y un ejemplo para Pico 2. Necesitas el [Pico SDK](https://github.com/raspberrypi/pico-sdk) instalado, o la extensión Raspberry Pi Pico de VS Code.
+
+```bash
+cd pico
+mkdir build
+cd build
+PICO_SDK_PATH=/ruta/a/pico-sdk cmake ..
+cmake --build .
+```
+
+Esto genera un archivo `.uf2` por ejemplo, como `ej00_leerPerilla.uf2`. Para cargarlo, conecta la Pico manteniendo presionado el botón BOOTSEL y copia el archivo a la unidad que aparece.
+
+En Pico, la perilla se lee de 0 a 4095 (12 bits), no de 0 a 1023 como en Arduino Uno.
+
+Para otra placa, cambia `PICO_BOARD` en [pico/CMakeLists.txt](./pico/CMakeLists.txt) (por ejemplo `pico` para la Pico original).
+
+Ejemplo completo en [pico/ej00_leerPerilla/main.cpp](./pico/ej00_leerPerilla/main.cpp).
+
+## Ejemplos
+
+Cada ejemplo existe para Arduino, en [examples/](./examples/), y para Pico SDK, en [pico/](./pico/). En Arduino la perilla va en A0, y en Pico en GPIO 26.
+
+| Ejemplo | Qué hace |
+| --- | --- |
+| `ej00_leerPerilla` | imprime el valor leído y el valor mapeado |
+| `ej01_brilloLed` | controla el brillo de un led (en Arduino un led externo en la patita 9, en Pico el led de la placa) |
+| `ej02_umbral` | enciende el led de la placa cuando la perilla pasa de la mitad |
+| `ej03_dosPerillas` | lee dos perillas a la vez, en formato para el plotter serial |
+
+## Referencia
+
+| Método | Descripción |
+| --- | --- |
+| `Perilla(uint8_t patita)` | crea la perilla y configura la patita como entrada análoga |
+| `void setRangoLeido(uint16_t min, uint16_t max)` | rango que entrega la placa al leer, por ejemplo `0, 1023` |
+| `void setRangoMapeado(uint16_t min, uint16_t max)` | rango al que se convierte la lectura, por ejemplo `0, 100` |
+| `void leer()` | lee la patita y calcula el valor mapeado |
+| `uint16_t getValor()` | última lectura, sin mapear |
+| `uint16_t getValorMapeado()` | última lectura, convertida al rango mapeado |
+| `void setPatita(uint8_t patita)` | cambia la patita guardada (no la vuelve a configurar) |
+
+Si no configuras los rangos, ambos parten en `0, 1023`, así que `getValorMapeado()` entrega lo mismo que `getValor()`.
+
+## Documentación
+
+La documentación se genera con [Doxygen](https://www.doxygen.nl/) a partir de los comentarios en [src/](./src/), en español y en inglés, y se publica en <https://piruetasxyz.github.io/Perilla/>.
+
+Para generarla en tu computador, en español:
+
+```bash
+(cat Doxyfile; echo "OUTPUT_LANGUAGE = Spanish"; echo "HTML_OUTPUT = es") | doxygen -
+```
+
+Queda en `build/docs/es/index.html`. Para inglés, usa `English` y `en`.
+
+Cada comentario tiene una sección `\~spanish` y una sección `\~english`. Si agregas algo público sin documentar, la generación falla.
+
+## Cómo está organizado
+
+El código de [src/Perilla.cpp](./src/Perilla.cpp) no depende de ninguna plataforma. Todo lo que toca el hardware pasa por [src/Hardware.h](./src/Hardware.h), que tiene una implementación por plataforma:
+
+- [src/arduino/ArduinoHardware.cpp](./src/arduino/ArduinoHardware.cpp): usa `analogRead`.
+- [pico/PicoHardware.cpp](./pico/PicoHardware.cpp): usa las funciones `adc_*` del Pico SDK.
+
+Para agregar otra plataforma, basta con escribir otra implementación de `Hardware.h`.
+
+## Contenido
+
+- [.github/](./.github): flujos de trabajo que compilan los ejemplos de Arduino y de Pico, revisan la biblioteca con Arduino Lint, y publican la documentación.
+- [docs/](./docs/): página principal de la documentación y página para elegir idioma.
+- [examples/](./examples/): ejemplos para Arduino.
+- [Doxyfile](./Doxyfile): configuración de Doxygen.
+- [pico/](./pico/): proyecto CMake, implementación y ejemplo para Pico SDK.
+- [src/](./src/): código de la biblioteca.
+- [keywords.txt](./keywords.txt): colores de sintaxis para Arduino IDE.
+- [library.properties](./library.properties): metadatos para Arduino.
+- [LICENSE](./LICENSE): licencia MIT.
+- [README.md](./README.md): este documento.
+
+## Versiones
+
+- v0.1.0: octubre 2026, compatibilidad con Raspberry Pi Pico SDK, y valores por defecto para los rangos.
+- v0.0.1: septiembre 2025, primera versión para Arduino.
+
+## Licencia
+
+MIT, ver [LICENSE](./LICENSE).
