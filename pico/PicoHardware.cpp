@@ -40,9 +40,4 @@ namespace PerillaHardware
         return gpio_get(patita);
     }
 
-    uint32_t tiempoActual()
-    {
-        return to_ms_since_boot(get_absolute_time());
-    }
-
 }

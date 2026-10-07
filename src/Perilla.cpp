@@ -31,8 +31,22 @@ static int32_t dividirRedondeado(int32_t numerador, int32_t denominador)
     return (numerador - denominador / 2) / denominador;
 }
 
-// un clic mecanico rebota unos pocos milisegundos
-static const uint32_t tiempoAntirreboteEncoder = 5;
+// las patitas A y B del encoder forman un estado de 2 bits: (A << 1) | B.
+// en reposo las dos estan en alto por la pull-up, asi que el reposo es 0b11.
+// un clic horario recorre 11 -> 01 -> 00 -> 10 -> 11, y uno antihorario
+// el mismo camino al reves.
+static const uint8_t estadoReposoEncoder = 0b11;
+
+// cuanto suma cada cambio de estado, indexado por (estadoAnterior << 2) | estado.
+// +1 es un paso horario, -1 uno antihorario, 0 es quedarse igual o un salto
+// imposible. un rebote va y vuelve entre dos estados vecinos, asi que suma
+// +1 y -1 y se cancela solo, sin necesidad de esperar un tiempo.
+static const int8_t pasoSegunCambioEncoder[16] = {
+    0, -1, +1, 0,  // desde 00
+    +1, 0, 0, -1,  // desde 01
+    -1, 0, 0, +1,  // desde 10
+    0, +1, -1, 0,  // desde 11
+};
 
 Perilla::Perilla(uint8_t nuevaPatita)
 {
@@ -78,10 +92,8 @@ void Perilla::iniciar(uint8_t nuevaPatitaA, uint8_t nuevaPatitaB, Tipo nuevoTipo
     sensibilidad = 1;
     direccion = QUIETA;
     pasos = 0;
-    // en reposo la patita A esta en alto, por la pull-up
-    patitaAAnterior = true;
-    esperandoAntirrebote = false;
-    tiempoAnteriorClic = 0;
+    estadoAnteriorEncoder = estadoReposoEncoder;
+    avanceEncoder = 0;
 
     // rangos iguales por defecto, asi el valor mapeado
     // es igual al valor leido hasta que se configuren
@@ -195,33 +207,34 @@ void Perilla::leerEncoder()
 {
     direccion = QUIETA;
 
-    bool lecturaA = PerillaHardware::leerPatitaDigital(patita);
+    uint8_t estado = (PerillaHardware::leerPatitaDigital(patita) << 1)
+                     | PerillaHardware::leerPatitaDigital(patitaB);
 
-    // flanco de bajada: en reposo A esta en alto y un clic la lleva a tierra
-    if (!lecturaA && patitaAAnterior)
+    if (estado == estadoAnteriorEncoder)
     {
-        uint32_t ahora = PerillaHardware::tiempoActual();
-
-        if (!esperandoAntirrebote || (ahora - tiempoAnteriorClic) >= tiempoAntirreboteEncoder)
-        {
-            // B en alto es horario. Si se siente al reves, se cambian las patitas.
-            if (PerillaHardware::leerPatitaDigital(patitaB))
-            {
-                direccion = HORARIO;
-                pasos += sensibilidad;
-            }
-            else
-            {
-                direccion = ANTIHORARIO;
-                pasos -= sensibilidad;
-            }
-
-            esperandoAntirrebote = true;
-            tiempoAnteriorClic = ahora;
-        }
+        return;
     }
 
-    patitaAAnterior = lecturaA;
+    avanceEncoder += pasoSegunCambioEncoder[(estadoAnteriorEncoder << 2) | estado];
+    estadoAnteriorEncoder = estado;
+
+    // el clic se cuenta al volver al reposo, segun hacia donde se avanzo.
+    // si se siente al reves, se cambian las patitas.
+    if (estado == estadoReposoEncoder)
+    {
+        if (avanceEncoder >= 2)
+        {
+            direccion = HORARIO;
+            pasos += sensibilidad;
+        }
+        else if (avanceEncoder <= -2)
+        {
+            direccion = ANTIHORARIO;
+            pasos -= sensibilidad;
+        }
+
+        avanceEncoder = 0;
+    }
 }
 
 uint16_t Perilla::getValor()

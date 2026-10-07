@@ -68,17 +68,6 @@ namespace PerillaHardware
      * @return `true` if high, `false` if low.
      */
     bool leerPatitaDigital(uint8_t patita);
-
-    /**
-     * \~spanish
-     * @brief Tiempo desde que partio el microcontrolador.
-     * @return tiempo en milisegundos.
-     *
-     * \~english
-     * @brief Time since the microcontroller started.
-     * @return time in milliseconds.
-     */
-    uint32_t tiempoActual();
 }
 
 #endif

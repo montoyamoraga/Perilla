@@ -387,9 +387,8 @@ private:
     uint8_t sensibilidad;
     Direccion direccion;
     int32_t pasos;
-    bool patitaAAnterior;
-    bool esperandoAntirrebote;
-    uint32_t tiempoAnteriorClic;
+    uint8_t estadoAnteriorEncoder;
+    int8_t avanceEncoder;
     bool filtroActivo;
     bool filtroIniciado;
     uint8_t porcentajeFiltro;
