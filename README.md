@@ -44,6 +44,8 @@ void loop()
 
 Ejemplo en [examples/ej00_leerPerilla/](./examples/ej00_leerPerilla/).
 
+Si la lectura tiembla por el ruido, `perilla.setFiltro(20)` incorpora un 20% de cada lectura nueva. `perilla.quitarFiltro()` lo desactiva. Si no llamas a `setFiltro()`, la perilla se comporta igual que antes.
+
 ## Uso con Raspberry Pi Pico SDK
 
 La carpeta [pico/](./pico/) tiene un proyecto CMake que compila la biblioteca y un ejemplo para Pico 2. Necesitas el [Pico SDK](https://github.com/raspberrypi/pico-sdk) instalado, o la extensión Raspberry Pi Pico de VS Code.
@@ -74,6 +76,7 @@ Cada ejemplo existe para Arduino, en [examples/](./examples/), y para Pico SDK, 
 | `ej01_brilloLed` | controla el brillo de un led (en Arduino un led externo en la patita 9, en Pico el led de la placa) |
 | `ej02_umbral` | enciende el led de la placa cuando la perilla pasa de la mitad |
 | `ej03_dosPerillas` | lee dos perillas a la vez, en formato para el plotter serial |
+| `ej04_filtro` | suaviza la lectura con un filtro opcional |
 
 ## Referencia
 
@@ -82,8 +85,10 @@ Cada ejemplo existe para Arduino, en [examples/](./examples/), y para Pico SDK, 
 | `Perilla(uint8_t patita)` | crea la perilla y configura la patita como entrada análoga |
 | `void setRangoLeido(uint16_t min, uint16_t max)` | rango que entrega la placa al leer, por ejemplo `0, 1023` |
 | `void setRangoMapeado(uint16_t min, uint16_t max)` | rango al que se convierte la lectura, por ejemplo `0, 100` |
+| `void setFiltro(uint8_t porcentaje)` | suaviza la lectura. `20` incorpora un 20% de cada lectura nueva. Un `0` se toma como `1`, y un valor mayor que 100 se toma como 100 |
+| `void quitarFiltro()` | desactiva el filtro. La próxima `leer()` vuelve a la lectura directa |
 | `void leer()` | lee la patita y calcula el valor mapeado |
-| `uint16_t getValor()` | última lectura, sin mapear |
+| `uint16_t getValor()` | última lectura, sin mapear (filtrada si el filtro está activo) |
 | `uint16_t getValorMapeado()` | última lectura, convertida al rango mapeado |
 | `void setPatita(uint8_t patita)` | cambia la patita guardada (no la vuelve a configurar) |
 
