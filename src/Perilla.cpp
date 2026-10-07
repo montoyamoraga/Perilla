@@ -31,11 +31,43 @@ static int32_t dividirRedondeado(int32_t numerador, int32_t denominador)
     return (numerador - denominador / 2) / denominador;
 }
 
+// las patitas A y B del encoder forman un estado de 2 bits: (A << 1) | B.
+// en reposo las dos estan en alto por la pull-up, asi que el reposo es 0b11.
+// un clic horario recorre 11 -> 01 -> 00 -> 10 -> 11, y uno antihorario
+// el mismo camino al reves.
+static const uint8_t estadoReposoEncoder = 0b11;
+
+// cuanto suma cada cambio de estado, indexado por (estadoAnterior << 2) | estado.
+// +1 es un paso horario, -1 uno antihorario, 0 es quedarse igual o un salto
+// imposible. un rebote va y vuelve entre dos estados vecinos, asi que suma
+// +1 y -1 y se cancela solo, sin necesidad de esperar un tiempo.
+static const int8_t pasoSegunCambioEncoder[16] = {
+    0, -1, +1, 0,  // desde 00
+    +1, 0, 0, -1,  // desde 01
+    -1, 0, 0, +1,  // desde 10
+    0, +1, -1, 0,  // desde 11
+};
+
 Perilla::Perilla(uint8_t nuevaPatita)
 {
-    setPatita(nuevaPatita);
+    iniciar(nuevaPatita, nuevaPatita, POTENCIOMETRO);
+}
 
-    PerillaHardware::configurarEntradaAnaloga(patita);
+Perilla::Perilla(uint8_t nuevaPatitaA, uint8_t nuevaPatitaB, Tipo nuevoTipo)
+{
+    if (nuevoTipo != ENCODER)
+    {
+        nuevoTipo = POTENCIOMETRO;
+    }
+
+    iniciar(nuevaPatitaA, nuevaPatitaB, nuevoTipo);
+}
+
+void Perilla::iniciar(uint8_t nuevaPatitaA, uint8_t nuevaPatitaB, Tipo nuevoTipo)
+{
+    patita = nuevaPatitaA;
+    patitaB = nuevaPatitaB;
+    tipo = nuevoTipo;
 
     valorLeido = 0;
     valorMapeado = 0;
@@ -46,10 +78,27 @@ Perilla::Perilla(uint8_t nuevaPatita)
     porcentajeFiltro = 0;
     valorFiltradoEscalado = 0;
 
+    sensibilidad = 1;
+    direccion = QUIETA;
+    pasos = 0;
+    posicionEncoder = 0;
+    estadoAnteriorEncoder = estadoReposoEncoder;
+    avanceEncoder = 0;
+
     // rangos iguales por defecto, asi el valor mapeado
     // es igual al valor leido hasta que se configuren
     setRangoLeido(0, 1023);
     setRangoMapeado(0, 1023);
+
+    if (tipo == ENCODER)
+    {
+        PerillaHardware::configurarEntradaPullup(patita);
+        PerillaHardware::configurarEntradaPullup(patitaB);
+    }
+    else
+    {
+        PerillaHardware::configurarEntradaAnaloga(patita);
+    }
 }
 
 void Perilla::setPatita(uint8_t nuevaPatita)
@@ -66,6 +115,23 @@ void Perilla::setRangoMapeado(uint16_t nuevoValorMapeadoMin, uint16_t nuevoValor
 {
     valorMapeadoMin = nuevoValorMapeadoMin;
     valorMapeadoMax = nuevoValorMapeadoMax;
+
+    // en un encoder el valor vive dentro del rango mapeado,
+    // asi que hay que ajustarlo al rango nuevo
+    if (tipo == ENCODER)
+    {
+        actualizarValorEncoder();
+    }
+}
+
+void Perilla::setSensibilidad(uint8_t pasosPorClic)
+{
+    if (pasosPorClic == 0)
+    {
+        pasosPorClic = 1;
+    }
+
+    sensibilidad = pasosPorClic;
 }
 
 void Perilla::setFiltro(uint8_t porcentaje)
@@ -98,6 +164,12 @@ void Perilla::quitarFiltro()
 
 void Perilla::leer()
 {
+    if (tipo == ENCODER)
+    {
+        leerEncoder();
+        return;
+    }
+
     uint16_t lectura = PerillaHardware::leerPatita(patita);
 
     if (filtroActivo)
@@ -128,6 +200,76 @@ void Perilla::leer()
     valorMapeado = mapear(valorLeido, valorLeidoMin, valorLeidoMax, valorMapeadoMin, valorMapeadoMax);
 }
 
+void Perilla::leerEncoder()
+{
+    direccion = QUIETA;
+
+    uint8_t estado = (PerillaHardware::leerPatitaDigital(patita) << 1)
+                     | PerillaHardware::leerPatitaDigital(patitaB);
+
+    if (estado == estadoAnteriorEncoder)
+    {
+        return;
+    }
+
+    avanceEncoder += pasoSegunCambioEncoder[(estadoAnteriorEncoder << 2) | estado];
+    estadoAnteriorEncoder = estado;
+
+    // el clic se cuenta al volver al reposo, segun hacia donde se avanzo.
+    // si se siente al reves, se cambian las patitas.
+    if (estado == estadoReposoEncoder)
+    {
+        if (avanceEncoder >= 2)
+        {
+            direccion = HORARIO;
+            pasos += sensibilidad;
+            posicionEncoder += sensibilidad;
+        }
+        else if (avanceEncoder <= -2)
+        {
+            direccion = ANTIHORARIO;
+            pasos -= sensibilidad;
+            posicionEncoder -= sensibilidad;
+        }
+
+        avanceEncoder = 0;
+        actualizarValorEncoder();
+    }
+}
+
+void Perilla::actualizarValorEncoder()
+{
+    // la posicion es la distancia desde el minimo del rango mapeado,
+    // y se detiene en los extremos, como un potenciometro en sus topes
+    int32_t largoRango = (int32_t)valorMapeadoMax - (int32_t)valorMapeadoMin;
+    if (largoRango < 0)
+    {
+        largoRango = -largoRango;
+    }
+
+    if (posicionEncoder < 0)
+    {
+        posicionEncoder = 0;
+    }
+    if (posicionEncoder > largoRango)
+    {
+        posicionEncoder = largoRango;
+    }
+
+    // el giro horario va del minimo hacia el maximo,
+    // aunque el rango este invertido, por ejemplo de 100 a 0
+    if (valorMapeadoMax >= valorMapeadoMin)
+    {
+        valorMapeado = valorMapeadoMin + posicionEncoder;
+    }
+    else
+    {
+        valorMapeado = valorMapeadoMin - posicionEncoder;
+    }
+
+    valorLeido = valorMapeado;
+}
+
 uint16_t Perilla::getValor()
 {
     return valorLeido;
@@ -135,4 +277,14 @@ uint16_t Perilla::getValor()
 uint16_t Perilla::getValorMapeado()
 {
     return valorMapeado;
+}
+
+Perilla::Direccion Perilla::getDireccion()
+{
+    return direccion;
+}
+
+int32_t Perilla::getPasos()
+{
+    return pasos;
 }

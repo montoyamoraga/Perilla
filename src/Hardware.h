@@ -44,6 +44,30 @@ namespace PerillaHardware
      * @return read value, its range depends on the board.
      */
     uint16_t leerPatita(uint8_t patita);
+
+    /**
+     * \~spanish
+     * @brief Configura la patita como entrada con resistencia pull-up interna.
+     * @param patita patita a configurar.
+     *
+     * \~english
+     * @brief Configures the pin as an input with the internal pull-up resistor.
+     * @param patita pin to configure.
+     */
+    void configurarEntradaPullup(uint8_t patita);
+
+    /**
+     * \~spanish
+     * @brief Lee el valor digital de la patita.
+     * @param patita patita a leer.
+     * @return `true` si esta en alto, `false` si esta en bajo.
+     *
+     * \~english
+     * @brief Reads the digital value of the pin.
+     * @param patita pin to read.
+     * @return `true` if high, `false` if low.
+     */
+    bool leerPatitaDigital(uint8_t patita);
 }
 
 #endif

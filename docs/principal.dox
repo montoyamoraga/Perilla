@@ -79,6 +79,12 @@
  */
 
 /**
+ * \example ej05_encoder/ej05_encoder.ino
+ * \~spanish Arduino: lee un encoder, su direccion y sus pasos.
+ * \~english Arduino: reads an encoder, its direction and its steps.
+ */
+
+/**
  * \example ej00_leerPerilla/main.cpp
  * \~spanish Pico SDK: imprime el valor leido y el valor mapeado.
  * \~english Pico SDK: prints the read value and the mapped value.
@@ -106,4 +112,10 @@
  * \example ej04_filtro/main.cpp
  * \~spanish Pico SDK: suaviza la lectura con un filtro opcional.
  * \~english Pico SDK: smooths the reading with an optional filter.
+ */
+
+/**
+ * \example ej05_encoder/main.cpp
+ * \~spanish Pico SDK: lee un encoder, su direccion y sus pasos.
+ * \~english Pico SDK: reads an encoder, its direction and its steps.
  */

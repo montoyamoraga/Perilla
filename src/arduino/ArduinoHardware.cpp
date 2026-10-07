@@ -15,4 +15,14 @@ namespace PerillaHardware
     {
         return analogRead(patita);
     }
+
+    void configurarEntradaPullup(uint8_t patita)
+    {
+        pinMode(patita, INPUT_PULLUP);
+    }
+
+    bool leerPatitaDigital(uint8_t patita)
+    {
+        return digitalRead(patita);
+    }
 }

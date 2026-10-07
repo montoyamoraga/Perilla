@@ -75,6 +75,7 @@ agregar_ejemplo(ej01_brilloLed)
 agregar_ejemplo(ej02_umbral)
 agregar_ejemplo(ej03_dosPerillas)
 agregar_ejemplo(ej04_filtro)
+agregar_ejemplo(ej05_encoder)
 
 # el ejemplo de brillo usa pwm para el led
 target_link_libraries(ej01_brilloLed hardware_pwm)
