@@ -11,6 +11,19 @@ Perilla	KEYWORD1
 setPatita	KEYWORD2
 setRangoLeido	KEYWORD2
 setRangoMapeado	KEYWORD2
+setSensibilidad	KEYWORD2
 leer	KEYWORD2
 getValor	KEYWORD2
 getValorMapeado	KEYWORD2
+getDireccion	KEYWORD2
+getPasos	KEYWORD2
+
+################################
+# Constantes
+################################
+
+POTENCIOMETRO	LITERAL1
+ENCODER	LITERAL1
+QUIETA	LITERAL1
+HORARIO	LITERAL1
+ANTIHORARIO	LITERAL1

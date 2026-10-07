@@ -1,6 +1,7 @@
 #include "../src/Hardware.h"
 
 #include "hardware/adc.h"
+#include "pico/stdlib.h"
 
 namespace PerillaHardware
 {
@@ -25,6 +26,23 @@ namespace PerillaHardware
         // por ejemplo gpio 26 es la entrada 0
         adc_select_input(patita - ADC_BASE_PIN);
         return adc_read();
+    }
+
+    void configurarEntradaPullup(uint8_t patita)
+    {
+        gpio_init(patita);
+        gpio_set_dir(patita, GPIO_IN);
+        gpio_pull_up(patita);
+    }
+
+    bool leerPatitaDigital(uint8_t patita)
+    {
+        return gpio_get(patita);
+    }
+
+    uint32_t tiempoActual()
+    {
+        return to_ms_since_boot(get_absolute_time());
     }
 
 }

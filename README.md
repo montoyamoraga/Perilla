@@ -1,6 +1,8 @@
 # Perilla
 
-Biblioteca para leer perillas (potenciómetros) con microcontroladores, y mapear su valor a otro rango.
+Biblioteca para leer perillas con microcontroladores, y mapear su valor a otro rango.
+
+Una perilla puede ser un potenciómetro o un encoder. El tipo se elige al crearla.
 
 Funciona con placas Arduino y con placas Raspberry Pi Pico, tanto desde Arduino como desde el Pico SDK.
 
@@ -74,20 +76,49 @@ Cada ejemplo existe para Arduino, en [examples/](./examples/), y para Pico SDK, 
 | `ej01_brilloLed` | controla el brillo de un led (en Arduino un led externo en la patita 9, en Pico el led de la placa) |
 | `ej02_umbral` | enciende el led de la placa cuando la perilla pasa de la mitad |
 | `ej03_dosPerillas` | lee dos perillas a la vez, en formato para el plotter serial |
+| `ej04_encoder` | lee un encoder: dirección del giro y pasos acumulados |
 
 ## Referencia
 
 | Método | Descripción |
 | --- | --- |
-| `Perilla(uint8_t patita)` | crea la perilla y configura la patita como entrada análoga |
-| `void setRangoLeido(uint16_t min, uint16_t max)` | rango que entrega la placa al leer, por ejemplo `0, 1023` |
-| `void setRangoMapeado(uint16_t min, uint16_t max)` | rango al que se convierte la lectura, por ejemplo `0, 100` |
-| `void leer()` | lee la patita y calcula el valor mapeado |
-| `uint16_t getValor()` | última lectura, sin mapear |
-| `uint16_t getValorMapeado()` | última lectura, convertida al rango mapeado |
+| `Perilla(uint8_t patita)` | crea un potenciómetro y configura la patita como entrada análoga |
+| `Perilla(uint8_t patita, Tipo tipo)` | elige el tipo. `ENCODER` con una sola patita queda como potenciómetro |
+| `Perilla(uint8_t patitaA, uint8_t patitaB, Tipo tipo)` | encoder en dos patitas digitales, con el común a tierra |
+| `void setRangoLeido(uint16_t min, uint16_t max)` | rango que entrega la placa al leer un potenciómetro, por ejemplo `0, 1023` |
+| `void setRangoMapeado(uint16_t min, uint16_t max)` | rango al que se convierte la lectura del potenciómetro, por ejemplo `0, 100` |
+| `void setSensibilidad(uint8_t pasosPorClic)` | cuántos pasos vale cada clic del encoder. El valor inicial es 1. Un 0 se toma como 1 |
+| `void leer()` | lee la perilla. En un encoder hay que llamarla en cada vuelta del loop |
+| `uint16_t getValor()` | última lectura del potenciómetro, sin mapear. En un encoder queda en 0 |
+| `uint16_t getValorMapeado()` | última lectura del potenciómetro, convertida al rango mapeado. En un encoder queda en 0 |
+| `Direccion getDireccion()` | `HORARIO`, `ANTIHORARIO` o `QUIETA`, según la última `leer()` |
+| `int32_t getPasos()` | pasos acumulados del encoder. Puede ser negativo |
 | `void setPatita(uint8_t patita)` | cambia la patita guardada (no la vuelve a configurar) |
 
 Si no configuras los rangos, ambos parten en `0, 1023`, así que `getValorMapeado()` entrega lo mismo que `getValor()`.
+
+## Encoder
+
+```cpp
+Perilla perilla(2, 3, Perilla::ENCODER);
+
+void setup()
+{
+  perilla.setSensibilidad(2);
+}
+
+void loop()
+{
+  perilla.leer();
+
+  // getDireccion() es HORARIO, ANTIHORARIO o QUIETA
+  // getPasos() es el total, y puede ser negativo
+}
+```
+
+`setSensibilidad(2)` hace que cada clic sume o reste 2. Si no la llamas, cada clic vale 1. El pulsador del eje, si el encoder tiene uno, se lee como un botón en otra patita.
+
+Ejemplo en [examples/ej04_encoder/](./examples/ej04_encoder/).
 
 ## Documentación
 

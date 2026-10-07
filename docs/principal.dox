@@ -73,6 +73,12 @@
  */
 
 /**
+ * \example ej04_encoder/ej04_encoder.ino
+ * \~spanish Arduino: lee un encoder, su direccion y sus pasos.
+ * \~english Arduino: reads an encoder, its direction and its steps.
+ */
+
+/**
  * \example ej00_leerPerilla/main.cpp
  * \~spanish Pico SDK: imprime el valor leido y el valor mapeado.
  * \~english Pico SDK: prints the read value and the mapped value.
@@ -94,4 +100,10 @@
  * \example ej03_dosPerillas/main.cpp
  * \~spanish Pico SDK: lee dos perillas a la vez.
  * \~english Pico SDK: reads two knobs at once.
+ */
+
+/**
+ * \example ej04_encoder/main.cpp
+ * \~spanish Pico SDK: lee un encoder, su direccion y sus pasos.
+ * \~english Pico SDK: reads an encoder, its direction and its steps.
  */
