@@ -106,34 +106,21 @@ public:
     /**
      * \~spanish
      * @brief Crea un potenciometro y configura la patita como entrada analoga.
+     *
+     * Una perilla es un potenciometro por defecto. Para un encoder, que usa
+     * dos patitas, se crea con Perilla(patitaA, patitaB, Perilla::ENCODER).
+     *
      * @param nuevaPatita patita donde esta conectada la patita del medio de la perilla.
      *
      * \~english
      * @brief Creates a potentiometer and configures the pin as an analog input.
+     *
+     * A knob is a potentiometer by default. For an encoder, which uses
+     * two pins, create it with Perilla(patitaA, patitaB, Perilla::ENCODER).
+     *
      * @param nuevaPatita pin the knob's middle leg is connected to.
      */
     Perilla(uint8_t nuevaPatita);
-
-    /**
-     * \~spanish
-     * @brief Crea la perilla del tipo elegido.
-     *
-     * Si el tipo es ENCODER, falta la segunda patita, asi que queda
-     * como potenciometro.
-     *
-     * @param nuevaPatita patita de la perilla.
-     * @param nuevoTipo POTENCIOMETRO o ENCODER.
-     *
-     * \~english
-     * @brief Creates the knob of the chosen kind.
-     *
-     * If the kind is ENCODER, the second pin is missing, so it becomes
-     * a potentiometer.
-     *
-     * @param nuevaPatita knob pin.
-     * @param nuevoTipo POTENCIOMETRO or ENCODER.
-     */
-    Perilla(uint8_t nuevaPatita, Tipo nuevoTipo);
 
     /**
      * \~spanish

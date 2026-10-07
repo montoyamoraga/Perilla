@@ -53,17 +53,6 @@ Perilla::Perilla(uint8_t nuevaPatita)
     iniciar(nuevaPatita, nuevaPatita, POTENCIOMETRO);
 }
 
-Perilla::Perilla(uint8_t nuevaPatita, Tipo nuevoTipo)
-{
-    // un encoder necesita dos patitas
-    if (nuevoTipo == ENCODER)
-    {
-        nuevoTipo = POTENCIOMETRO;
-    }
-
-    iniciar(nuevaPatita, nuevaPatita, nuevoTipo);
-}
-
 Perilla::Perilla(uint8_t nuevaPatitaA, uint8_t nuevaPatitaB, Tipo nuevoTipo)
 {
     if (nuevoTipo != ENCODER)

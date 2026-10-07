@@ -85,8 +85,7 @@ Cada ejemplo existe para Arduino, en [examples/](./examples/), y para Pico SDK, 
 
 | Método | Descripción |
 | --- | --- |
-| `Perilla(uint8_t patita)` | crea un potenciómetro y configura la patita como entrada análoga |
-| `Perilla(uint8_t patita, Tipo tipo)` | elige el tipo. `ENCODER` con una sola patita queda como potenciómetro |
+| `Perilla(uint8_t patita)` | crea un potenciómetro, el tipo por defecto, y configura la patita como entrada análoga |
 | `Perilla(uint8_t patitaA, uint8_t patitaB, Tipo tipo)` | encoder en dos patitas digitales, con el común a tierra |
 | `void setRangoLeido(uint16_t min, uint16_t max)` | rango que entrega la placa al leer un potenciómetro, por ejemplo `0, 1023` |
 | `void setRangoMapeado(uint16_t min, uint16_t max)` | rango al que se convierte la lectura del potenciómetro, por ejemplo `0, 100` |
