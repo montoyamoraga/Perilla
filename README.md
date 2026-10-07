@@ -85,10 +85,10 @@ Cada ejemplo existe para Arduino, en [examples/](./examples/), y para Pico SDK, 
 | `Perilla(uint8_t patita)` | crea la perilla y configura la patita como entrada análoga |
 | `void setRangoLeido(uint16_t min, uint16_t max)` | rango que entrega la placa al leer, por ejemplo `0, 1023` |
 | `void setRangoMapeado(uint16_t min, uint16_t max)` | rango al que se convierte la lectura, por ejemplo `0, 100` |
-| `void setFiltro(uint8_t porcentaje)` | suaviza la lectura. `20` incorpora un 20% de cada lectura nueva. Un valor mayor que 100 se toma como 100 |
+| `void setFiltro(uint8_t porcentaje)` | suaviza la lectura. `20` incorpora un 20% de cada lectura nueva. Un `0` se toma como `1`, y un valor mayor que 100 se toma como 100 |
 | `void quitarFiltro()` | desactiva el filtro. La próxima `leer()` vuelve a la lectura directa |
 | `void leer()` | lee la patita y calcula el valor mapeado |
-| `uint16_t getValor()` | última lectura, sin mapear |
+| `uint16_t getValor()` | última lectura, sin mapear (filtrada si el filtro está activo) |
 | `uint16_t getValorMapeado()` | última lectura, convertida al rango mapeado |
 | `void setPatita(uint8_t patita)` | cambia la patita guardada (no la vuelve a configurar) |
 

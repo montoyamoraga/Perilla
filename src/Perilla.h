@@ -92,27 +92,27 @@ public:
      *
      * El porcentaje es la parte de la lectura nueva que entra en cada leer().
      * Por ejemplo, 20 incorpora un 20% de la lectura nueva y conserva un 80%
-     * del valor anterior. 0 deja el valor quieto. 100 sigue la lectura nueva
-     * por completo. Un valor mayor que 100 se toma como 100.
+     * del valor anterior. 100 sigue la lectura nueva por completo.
+     * Un 0 se toma como 1, y un valor mayor que 100 se toma como 100.
      *
-     * Al activarlo, el filtro empieza desde la lectura actual, no desde cero.
+     * Al activarlo, el filtro empieza desde la proxima lectura, no desde cero.
      * Cambiar el porcentaje mientras ya esta activo no reinicia ese valor.
      *
-     * @param porcentaje porcentaje de la lectura nueva, de 0 a 100.
+     * @param porcentaje porcentaje de la lectura nueva, de 1 a 100.
      *
      * \~english
      * @brief Enables a filter to smooth noise in the reading.
      *
      * The percentage is how much of the new reading is mixed in on each leer().
      * For example, 20 mixes in 20% of the new reading and keeps 80% of the
-     * previous value. 0 holds the value still. 100 follows the new reading
-     * completely. A value above 100 is treated as 100.
+     * previous value. 100 follows the new reading completely.
+     * A 0 is treated as 1, and a value above 100 is treated as 100.
      *
-     * When enabled, the filter starts from the current reading, not from zero.
+     * When enabled, the filter starts from the next reading, not from zero.
      * Changing the percentage while it is already active does not restart
      * that value.
      *
-     * @param porcentaje percentage of the new reading, from 0 to 100.
+     * @param porcentaje percentage of the new reading, from 1 to 100.
      */
     void setFiltro(uint8_t porcentaje);
 
@@ -143,10 +143,16 @@ public:
     /**
      * \~spanish
      * @brief Ultima lectura, sin mapear.
+     *
+     * Si el filtro esta activo, es la lectura filtrada.
+     *
      * @return valor dentro del rango leido.
      *
      * \~english
      * @brief Last reading, not mapped.
+     *
+     * If the filter is active, it is the filtered reading.
+     *
      * @return value within the read range.
      */
     uint16_t getValor();
@@ -171,8 +177,9 @@ private:
     uint16_t valorMapeadoMin;
     uint16_t valorMapeadoMax;
     bool filtroActivo;
+    bool filtroIniciado;
     uint8_t porcentajeFiltro;
-    uint16_t valorFiltrado;
+    int32_t valorFiltradoEscalado;
 };
 
 #endif
