@@ -14,8 +14,9 @@
  * rangos son de 0 a 1023, asi que getValorMapeado() entrega lo mismo
  * que getValor() hasta que se configuren.
  *
- * En un encoder, leer() actualiza la direccion y los pasos.
- * getValor() y getValorMapeado() se quedan en 0.
+ * En un encoder, cada clic mueve el valor dentro del rango mapeado,
+ * asi que getValorMapeado() funciona igual con los dos tipos. Ademas
+ * leer() actualiza la direccion y los pasos.
  *
  * El filtro para reducir el ruido esta desactivado hasta que se llame
  * a setFiltro().
@@ -30,8 +31,9 @@
  * both ranges are 0 to 1023, so getValorMapeado() returns the same as
  * getValor() until they are configured.
  *
- * On an encoder, leer() updates the direction and the steps.
- * getValor() and getValorMapeado() stay at 0.
+ * On an encoder, each click moves the value within the mapped range,
+ * so getValorMapeado() works the same with both kinds. leer() also
+ * updates the direction and the steps.
  *
  * The noise filter stays disabled until setFiltro() is called.
  */
@@ -184,7 +186,9 @@ public:
      * @brief Configura el rango al que se convierte la lectura.
      *
      * Por ejemplo de 0 a 100 para porcentaje, o de 0 a 255 para el brillo de un led.
-     * En un encoder no se usa.
+     *
+     * En un encoder es el rango en que se mueve el valor. Parte en el minimo,
+     * cada clic horario avanza hacia el maximo, y se detiene en los extremos.
      *
      * @param nuevoValorMapeadoMin valor minimo mapeado.
      * @param nuevoValorMapeadoMax valor maximo mapeado.
@@ -193,7 +197,10 @@ public:
      * @brief Configures the range the reading is converted to.
      *
      * For example 0 to 100 for a percentage, or 0 to 255 for an LED's brightness.
-     * It is not used on an encoder.
+     *
+     * On an encoder it is the range the value moves in. It starts at the
+     * minimum, each clockwise click moves toward the maximum, and it stops
+     * at the ends.
      *
      * @param nuevoValorMapeadoMin minimum mapped value.
      * @param nuevoValorMapeadoMax maximum mapped value.
@@ -248,7 +255,8 @@ public:
 
     /**
      * \~spanish
-     * @brief Cuantos pasos suma o resta cada clic del encoder.
+     * @brief Cuantos pasos suma o resta cada clic del encoder,
+     * en los pasos y en el valor.
      *
      * El valor inicial es 1. Un 0 se toma como 1.
      * En un potenciometro no se usa.
@@ -256,7 +264,8 @@ public:
      * @param pasosPorClic pasos de cada clic.
      *
      * \~english
-     * @brief How many steps each encoder click adds or subtracts.
+     * @brief How many steps each encoder click adds or subtracts,
+     * to the steps and to the value.
      *
      * The initial value is 1. A 0 is treated as 1.
      * It is not used on a potentiometer.
@@ -270,7 +279,7 @@ public:
      * @brief Lee la perilla.
      *
      * En un potenciometro lee la patita y calcula el valor mapeado.
-     * En un encoder actualiza la direccion y los pasos. Hay que llamarlo
+     * En un encoder actualiza el valor, la direccion y los pasos. Hay que llamarlo
      * en cada vuelta del loop, porque un giro que no se alcanza a ver
      * no vuelve.
      *
@@ -278,7 +287,7 @@ public:
      * @brief Reads the knob.
      *
      * On a potentiometer it reads the pin and calculates the mapped value.
-     * On an encoder it updates the direction and the steps. Call it on
+     * On an encoder it updates the value, the direction and the steps. Call it on
      * every pass of the loop, because a turn that is not seen does not
      * come back.
      */
@@ -289,7 +298,7 @@ public:
      * @brief Ultima lectura del potenciometro, sin mapear.
      *
      * Si el filtro esta activo, es la lectura filtrada.
-     * En un encoder queda en 0.
+     * En un encoder es igual a getValorMapeado().
      *
      * @return valor dentro del rango leido.
      *
@@ -297,7 +306,7 @@ public:
      * @brief Last potentiometer reading, not mapped.
      *
      * If the filter is active, it is the filtered reading.
-     * On an encoder it stays at 0.
+     * On an encoder it is the same as getValorMapeado().
      *
      * @return value within the read range.
      */
@@ -305,16 +314,18 @@ public:
 
     /**
      * \~spanish
-     * @brief Ultima lectura del potenciometro, convertida al rango mapeado.
+     * @brief Valor de la perilla, dentro del rango mapeado.
      *
-     * En un encoder queda en 0.
+     * En un potenciometro es la ultima lectura convertida al rango mapeado.
+     * En un encoder es la posicion a la que llevaron los clics.
      *
      * @return valor dentro del rango mapeado.
      *
      * \~english
-     * @brief Last potentiometer reading, converted to the mapped range.
+     * @brief Knob value, within the mapped range.
      *
-     * On an encoder it stays at 0.
+     * On a potentiometer it is the last reading converted to the mapped range.
+     * On an encoder it is the position the clicks have moved it to.
      *
      * @return value within the mapped range.
      */
@@ -361,6 +372,7 @@ public:
 private:
     void iniciar(uint8_t nuevaPatitaA, uint8_t nuevaPatitaB, Tipo nuevoTipo);
     void leerEncoder();
+    void actualizarValorEncoder();
 
     uint8_t patita;
     uint8_t patitaB;
@@ -374,6 +386,7 @@ private:
     uint8_t sensibilidad;
     Direccion direccion;
     int32_t pasos;
+    int32_t posicionEncoder;
     uint8_t estadoAnteriorEncoder;
     int8_t avanceEncoder;
     bool filtroActivo;

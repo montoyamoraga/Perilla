@@ -1,5 +1,5 @@
 // leer un encoder y mostrar por usb
-// la direccion del giro y los pasos acumulados
+// su valor de 0 a 100, la direccion del giro y los pasos acumulados
 
 // conexiones:
 // patita A (CLK) a gpio 14
@@ -23,7 +23,9 @@ int main()
     // crear una perilla encoder en gpio 14 y gpio 15
     Perilla perilla(14, 15, Perilla::ENCODER);
 
-    // cada clic suma o resta 2 pasos
+    // el valor va de 0 a 100, igual que con un potenciometro
+    perilla.setRangoMapeado(0, 100);
+    // cada clic suma o resta 2
     perilla.setSensibilidad(2);
 
     while (true)
@@ -33,11 +35,11 @@ int main()
 
         if (perilla.getDireccion() == Perilla::HORARIO)
         {
-            printf("horario, pasos: %ld\n", (long)perilla.getPasos());
+            printf("horario, valor: %u, pasos: %ld\n", perilla.getValorMapeado(), (long)perilla.getPasos());
         }
         else if (perilla.getDireccion() == Perilla::ANTIHORARIO)
         {
-            printf("antihorario, pasos: %ld\n", (long)perilla.getPasos());
+            printf("antihorario, valor: %u, pasos: %ld\n", perilla.getValorMapeado(), (long)perilla.getPasos());
         }
 
         sleep_ms(1);

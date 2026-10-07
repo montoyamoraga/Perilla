@@ -1,5 +1,5 @@
 // leer un encoder y mostrar en el monitor serial
-// la direccion del giro y los pasos acumulados
+// su valor de 0 a 100, la direccion del giro y los pasos acumulados
 
 // conexiones:
 // patita A (CLK) a la patita 2
@@ -19,7 +19,9 @@ void setup()
   // abrir comunicacion serial
   Serial.begin(9600);
 
-  // cada clic suma o resta 2 pasos
+  // el valor va de 0 a 100, igual que con un potenciometro
+  perilla.setRangoMapeado(0, 100);
+  // cada clic suma o resta 2
   perilla.setSensibilidad(2);
 }
 
@@ -30,12 +32,16 @@ void loop()
 
   if (perilla.getDireccion() == Perilla::HORARIO)
   {
-    Serial.print("horario, pasos: ");
+    Serial.print("horario, valor: ");
+    Serial.print(perilla.getValorMapeado());
+    Serial.print(", pasos: ");
     Serial.println(perilla.getPasos());
   }
   else if (perilla.getDireccion() == Perilla::ANTIHORARIO)
   {
-    Serial.print("antihorario, pasos: ");
+    Serial.print("antihorario, valor: ");
+    Serial.print(perilla.getValorMapeado());
+    Serial.print(", pasos: ");
     Serial.println(perilla.getPasos());
   }
 }

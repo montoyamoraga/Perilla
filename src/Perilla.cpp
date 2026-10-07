@@ -81,6 +81,7 @@ void Perilla::iniciar(uint8_t nuevaPatitaA, uint8_t nuevaPatitaB, Tipo nuevoTipo
     sensibilidad = 1;
     direccion = QUIETA;
     pasos = 0;
+    posicionEncoder = 0;
     estadoAnteriorEncoder = estadoReposoEncoder;
     avanceEncoder = 0;
 
@@ -114,6 +115,13 @@ void Perilla::setRangoMapeado(uint16_t nuevoValorMapeadoMin, uint16_t nuevoValor
 {
     valorMapeadoMin = nuevoValorMapeadoMin;
     valorMapeadoMax = nuevoValorMapeadoMax;
+
+    // en un encoder el valor vive dentro del rango mapeado,
+    // asi que hay que ajustarlo al rango nuevo
+    if (tipo == ENCODER)
+    {
+        actualizarValorEncoder();
+    }
 }
 
 void Perilla::setSensibilidad(uint8_t pasosPorClic)
@@ -215,15 +223,51 @@ void Perilla::leerEncoder()
         {
             direccion = HORARIO;
             pasos += sensibilidad;
+            posicionEncoder += sensibilidad;
         }
         else if (avanceEncoder <= -2)
         {
             direccion = ANTIHORARIO;
             pasos -= sensibilidad;
+            posicionEncoder -= sensibilidad;
         }
 
         avanceEncoder = 0;
+        actualizarValorEncoder();
     }
+}
+
+void Perilla::actualizarValorEncoder()
+{
+    // la posicion es la distancia desde el minimo del rango mapeado,
+    // y se detiene en los extremos, como un potenciometro en sus topes
+    int32_t largoRango = (int32_t)valorMapeadoMax - (int32_t)valorMapeadoMin;
+    if (largoRango < 0)
+    {
+        largoRango = -largoRango;
+    }
+
+    if (posicionEncoder < 0)
+    {
+        posicionEncoder = 0;
+    }
+    if (posicionEncoder > largoRango)
+    {
+        posicionEncoder = largoRango;
+    }
+
+    // el giro horario va del minimo hacia el maximo,
+    // aunque el rango este invertido, por ejemplo de 100 a 0
+    if (valorMapeadoMax >= valorMapeadoMin)
+    {
+        valorMapeado = valorMapeadoMin + posicionEncoder;
+    }
+    else
+    {
+        valorMapeado = valorMapeadoMin - posicionEncoder;
+    }
+
+    valorLeido = valorMapeado;
 }
 
 uint16_t Perilla::getValor()

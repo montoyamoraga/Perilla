@@ -88,13 +88,13 @@ Cada ejemplo existe para Arduino, en [examples/](./examples/), y para Pico SDK, 
 | `Perilla(uint8_t patita)` | crea un potenciómetro, el tipo por defecto, y configura la patita como entrada análoga |
 | `Perilla(uint8_t patitaA, uint8_t patitaB, Tipo tipo)` | encoder en dos patitas digitales, con el común a tierra |
 | `void setRangoLeido(uint16_t min, uint16_t max)` | rango que entrega la placa al leer un potenciómetro, por ejemplo `0, 1023` |
-| `void setRangoMapeado(uint16_t min, uint16_t max)` | rango al que se convierte la lectura del potenciómetro, por ejemplo `0, 100` |
-| `void setSensibilidad(uint8_t pasosPorClic)` | cuántos pasos vale cada clic del encoder. El valor inicial es 1. Un 0 se toma como 1 |
+| `void setRangoMapeado(uint16_t min, uint16_t max)` | rango del valor mapeado, por ejemplo `0, 100`. En un encoder el valor parte en el mínimo y se mueve con los clics |
+| `void setSensibilidad(uint8_t pasosPorClic)` | cuántos pasos vale cada clic del encoder, en los pasos y en el valor. El valor inicial es 1. Un 0 se toma como 1 |
 | `void setFiltro(uint8_t porcentaje)` | suaviza la lectura. `20` incorpora un 20% de cada lectura nueva. Un `0` se toma como `1`, y un valor mayor que 100 se toma como 100 |
 | `void quitarFiltro()` | desactiva el filtro. La próxima `leer()` vuelve a la lectura directa |
 | `void leer()` | lee la perilla. En un encoder hay que llamarla en cada vuelta del loop |
-| `uint16_t getValor()` | última lectura del potenciómetro, sin mapear (filtrada si el filtro está activo). En un encoder queda en 0 |
-| `uint16_t getValorMapeado()` | última lectura del potenciómetro, convertida al rango mapeado. En un encoder queda en 0 |
+| `uint16_t getValor()` | última lectura del potenciómetro, sin mapear (filtrada si el filtro está activo). En un encoder es igual a `getValorMapeado()` |
+| `uint16_t getValorMapeado()` | valor de la perilla dentro del rango mapeado, sea potenciómetro o encoder |
 | `Direccion getDireccion()` | `HORARIO`, `ANTIHORARIO` o `QUIETA`, según la última `leer()` |
 | `int32_t getPasos()` | pasos acumulados del encoder. Puede ser negativo |
 | `void setPatita(uint8_t patita)` | cambia la patita guardada (no la vuelve a configurar) |
@@ -103,11 +103,17 @@ Si no configuras los rangos, ambos parten en `0, 1023`, así que `getValorMapead
 
 ## Encoder
 
+Una perilla también puede ser un encoder. Se usa igual que un potenciómetro: cambia solo la línea que la crea.
+
 ```cpp
-Perilla perilla(2, 3, Perilla::ENCODER);
+// Perilla perilla(A0);                    // potenciómetro
+Perilla perilla(2, 3, Perilla::ENCODER);   // encoder
 
 void setup()
 {
+  // en los dos casos, el valor va de 0 a 100
+  perilla.setRangoMapeado(0, 100);
+  // en un encoder, cada clic mueve el valor en 2
   perilla.setSensibilidad(2);
 }
 
@@ -115,12 +121,13 @@ void loop()
 {
   perilla.leer();
 
+  // getValorMapeado() funciona igual con los dos tipos
   // getDireccion() es HORARIO, ANTIHORARIO o QUIETA
-  // getPasos() es el total, y puede ser negativo
+  // getPasos() es el total de clics, sin topes, y puede ser negativo
 }
 ```
 
-`setSensibilidad(2)` hace que cada clic sume o reste 2. Si no la llamas, cada clic vale 1. El pulsador del eje, si el encoder tiene uno, se lee como un botón en otra patita.
+En un encoder, el valor parte en el mínimo del rango mapeado y se detiene en los extremos, como un potenciómetro en sus topes. `setSensibilidad(2)` hace que cada clic sume o reste 2. Si no la llamas, cada clic vale 1. El pulsador del eje, si el encoder tiene uno, se lee como un botón en otra patita.
 
 Ejemplo en [examples/ej05_encoder/](./examples/ej05_encoder/).
 
