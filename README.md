@@ -169,6 +169,7 @@ Para agregar otra plataforma, basta con escribir otra implementación de `Hardwa
 
 ## Versiones
 
+- v0.2.0: octubre 2026, encoder como tipo de perilla, con el valor dentro del rango mapeado, y filtro opcional para el ruido.
 - v0.1.0: octubre 2026, compatibilidad con Raspberry Pi Pico SDK, y valores por defecto para los rangos.
 - v0.0.1: septiembre 2025, primera versión para Arduino.
 

@@ -62,7 +62,7 @@ function(agregar_ejemplo nombre)
     )
 
     pico_set_program_name(${nombre} "${nombre}")
-    pico_set_program_version(${nombre} "0.1 (2026-10-06)")
+    pico_set_program_version(${nombre} "0.2 (2026-10-07)")
 
     pico_enable_stdio_uart(${nombre} 0)
     pico_enable_stdio_usb(${nombre} 1)
