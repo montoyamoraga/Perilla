@@ -15,6 +15,22 @@ static int32_t mapear(int32_t valor, int32_t entradaMin, int32_t entradaMax, int
     return (valor - entradaMin) * (salidaMax - salidaMin) / (entradaMax - entradaMin) + salidaMin;
 }
 
+// el filtro guarda su valor multiplicado por esta escala,
+// para no perder los decimales al trabajar con enteros
+static const int32_t escalaFiltro = 256;
+
+// division entera que redondea al mas cercano en vez de truncar,
+// asi el filtro no se queda pegado antes de llegar a la lectura
+static int32_t dividirRedondeado(int32_t numerador, int32_t denominador)
+{
+    if (numerador >= 0)
+    {
+        return (numerador + denominador / 2) / denominador;
+    }
+
+    return (numerador - denominador / 2) / denominador;
+}
+
 // un clic mecanico rebota unos pocos milisegundos
 static const uint32_t tiempoAntirreboteEncoder = 5;
 
@@ -52,6 +68,12 @@ void Perilla::iniciar(uint8_t nuevaPatitaA, uint8_t nuevaPatitaB, Tipo nuevoTipo
 
     valorLeido = 0;
     valorMapeado = 0;
+
+    // sin filtro hasta que se llame a setFiltro()
+    filtroActivo = false;
+    filtroIniciado = false;
+    porcentajeFiltro = 0;
+    valorFiltradoEscalado = 0;
 
     sensibilidad = 1;
     direccion = QUIETA;
@@ -103,6 +125,34 @@ void Perilla::setSensibilidad(uint8_t pasosPorClic)
     sensibilidad = pasosPorClic;
 }
 
+void Perilla::setFiltro(uint8_t porcentaje)
+{
+    // con 0 el valor quedaria quieto para siempre
+    if (porcentaje < 1)
+    {
+        porcentaje = 1;
+    }
+    if (porcentaje > 100)
+    {
+        porcentaje = 100;
+    }
+
+    porcentajeFiltro = porcentaje;
+
+    // al activarlo, la proxima leer() parte desde la lectura actual
+    // y no desde cero. si ya estaba activo, solo cambia el porcentaje
+    if (!filtroActivo)
+    {
+        filtroIniciado = false;
+        filtroActivo = true;
+    }
+}
+
+void Perilla::quitarFiltro()
+{
+    filtroActivo = false;
+}
+
 void Perilla::leer()
 {
     if (tipo == ENCODER)
@@ -111,7 +161,33 @@ void Perilla::leer()
         return;
     }
 
-    valorLeido = PerillaHardware::leerPatita(patita);
+    uint16_t lectura = PerillaHardware::leerPatita(patita);
+
+    if (filtroActivo)
+    {
+        int32_t lecturaEscalada = (int32_t)lectura * escalaFiltro;
+
+        if (!filtroIniciado)
+        {
+            // primera lectura con filtro: partir desde ella
+            valorFiltradoEscalado = lecturaEscalada;
+            filtroIniciado = true;
+        }
+        else
+        {
+            // misma idea que valorFiltrado + porcentaje * (lectura - valorFiltrado),
+            // en enteros, para no usar float
+            int32_t diferencia = lecturaEscalada - valorFiltradoEscalado;
+            valorFiltradoEscalado += dividirRedondeado(diferencia * porcentajeFiltro, 100);
+        }
+
+        valorLeido = (uint16_t)dividirRedondeado(valorFiltradoEscalado, escalaFiltro);
+    }
+    else
+    {
+        valorLeido = lectura;
+    }
+
     valorMapeado = mapear(valorLeido, valorLeidoMin, valorLeidoMax, valorMapeadoMin, valorMapeadoMax);
 }
 

@@ -17,6 +17,9 @@
  * En un encoder, leer() actualiza la direccion y los pasos.
  * getValor() y getValorMapeado() se quedan en 0.
  *
+ * El filtro para reducir el ruido esta desactivado hasta que se llame
+ * a setFiltro().
+ *
  * \~english
  * @brief Reads a knob and returns its value.
  *
@@ -29,6 +32,8 @@
  *
  * On an encoder, leer() updates the direction and the steps.
  * getValor() and getValorMapeado() stay at 0.
+ *
+ * The noise filter stays disabled until setFiltro() is called.
  */
 class Perilla
 {
@@ -210,6 +215,52 @@ public:
 
     /**
      * \~spanish
+     * @brief Activa un filtro para suavizar el ruido de la lectura.
+     *
+     * El porcentaje es la parte de la lectura nueva que entra en cada leer().
+     * Por ejemplo, 20 incorpora un 20% de la lectura nueva y conserva un 80%
+     * del valor anterior. 100 sigue la lectura nueva por completo.
+     * Un 0 se toma como 1, y un valor mayor que 100 se toma como 100.
+     *
+     * Al activarlo, el filtro empieza desde la proxima lectura, no desde cero.
+     * Cambiar el porcentaje mientras ya esta activo no reinicia ese valor.
+     * En un encoder no se usa.
+     *
+     * @param porcentaje porcentaje de la lectura nueva, de 1 a 100.
+     *
+     * \~english
+     * @brief Enables a filter to smooth noise in the reading.
+     *
+     * The percentage is how much of the new reading is mixed in on each leer().
+     * For example, 20 mixes in 20% of the new reading and keeps 80% of the
+     * previous value. 100 follows the new reading completely.
+     * A 0 is treated as 1, and a value above 100 is treated as 100.
+     *
+     * When enabled, the filter starts from the next reading, not from zero.
+     * Changing the percentage while it is already active does not restart
+     * that value. It is not used on an encoder.
+     *
+     * @param porcentaje percentage of the new reading, from 1 to 100.
+     */
+    void setFiltro(uint8_t porcentaje);
+
+    /**
+     * \~spanish
+     * @brief Desactiva el filtro.
+     *
+     * No cambia el ultimo valor guardado. La proxima leer() vuelve a guardar
+     * la lectura directa de la patita.
+     *
+     * \~english
+     * @brief Disables the filter.
+     *
+     * It does not change the last stored value. The next leer() stores the
+     * direct pin reading again.
+     */
+    void quitarFiltro();
+
+    /**
+     * \~spanish
      * @brief Cuantos pasos suma o resta cada clic del encoder.
      *
      * El valor inicial es 1. Un 0 se toma como 1.
@@ -250,6 +301,7 @@ public:
      * \~spanish
      * @brief Ultima lectura del potenciometro, sin mapear.
      *
+     * Si el filtro esta activo, es la lectura filtrada.
      * En un encoder queda en 0.
      *
      * @return valor dentro del rango leido.
@@ -257,6 +309,7 @@ public:
      * \~english
      * @brief Last potentiometer reading, not mapped.
      *
+     * If the filter is active, it is the filtered reading.
      * On an encoder it stays at 0.
      *
      * @return value within the read range.
@@ -337,6 +390,10 @@ private:
     bool patitaAAnterior;
     bool esperandoAntirrebote;
     uint32_t tiempoAnteriorClic;
+    bool filtroActivo;
+    bool filtroIniciado;
+    uint8_t porcentajeFiltro;
+    int32_t valorFiltradoEscalado;
 };
 
 #endif

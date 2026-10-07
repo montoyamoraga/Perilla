@@ -73,7 +73,13 @@
  */
 
 /**
- * \example ej04_encoder/ej04_encoder.ino
+ * \example ej04_filtro/ej04_filtro.ino
+ * \~spanish Arduino: suaviza la lectura con un filtro opcional.
+ * \~english Arduino: smooths the reading with an optional filter.
+ */
+
+/**
+ * \example ej05_encoder/ej05_encoder.ino
  * \~spanish Arduino: lee un encoder, su direccion y sus pasos.
  * \~english Arduino: reads an encoder, its direction and its steps.
  */
@@ -103,7 +109,13 @@
  */
 
 /**
- * \example ej04_encoder/main.cpp
+ * \example ej04_filtro/main.cpp
+ * \~spanish Pico SDK: suaviza la lectura con un filtro opcional.
+ * \~english Pico SDK: smooths the reading with an optional filter.
+ */
+
+/**
+ * \example ej05_encoder/main.cpp
  * \~spanish Pico SDK: lee un encoder, su direccion y sus pasos.
  * \~english Pico SDK: reads an encoder, its direction and its steps.
  */

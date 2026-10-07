@@ -46,6 +46,8 @@ void loop()
 
 Ejemplo en [examples/ej00_leerPerilla/](./examples/ej00_leerPerilla/).
 
+Si la lectura tiembla por el ruido, `perilla.setFiltro(20)` incorpora un 20% de cada lectura nueva. `perilla.quitarFiltro()` lo desactiva. Si no llamas a `setFiltro()`, la perilla se comporta igual que antes.
+
 ## Uso con Raspberry Pi Pico SDK
 
 La carpeta [pico/](./pico/) tiene un proyecto CMake que compila la biblioteca y un ejemplo para Pico 2. Necesitas el [Pico SDK](https://github.com/raspberrypi/pico-sdk) instalado, o la extensión Raspberry Pi Pico de VS Code.
@@ -76,7 +78,8 @@ Cada ejemplo existe para Arduino, en [examples/](./examples/), y para Pico SDK, 
 | `ej01_brilloLed` | controla el brillo de un led (en Arduino un led externo en la patita 9, en Pico el led de la placa) |
 | `ej02_umbral` | enciende el led de la placa cuando la perilla pasa de la mitad |
 | `ej03_dosPerillas` | lee dos perillas a la vez, en formato para el plotter serial |
-| `ej04_encoder` | lee un encoder: dirección del giro y pasos acumulados |
+| `ej04_filtro` | suaviza la lectura con un filtro opcional |
+| `ej05_encoder` | lee un encoder: dirección del giro y pasos acumulados |
 
 ## Referencia
 
@@ -88,8 +91,10 @@ Cada ejemplo existe para Arduino, en [examples/](./examples/), y para Pico SDK, 
 | `void setRangoLeido(uint16_t min, uint16_t max)` | rango que entrega la placa al leer un potenciómetro, por ejemplo `0, 1023` |
 | `void setRangoMapeado(uint16_t min, uint16_t max)` | rango al que se convierte la lectura del potenciómetro, por ejemplo `0, 100` |
 | `void setSensibilidad(uint8_t pasosPorClic)` | cuántos pasos vale cada clic del encoder. El valor inicial es 1. Un 0 se toma como 1 |
+| `void setFiltro(uint8_t porcentaje)` | suaviza la lectura. `20` incorpora un 20% de cada lectura nueva. Un `0` se toma como `1`, y un valor mayor que 100 se toma como 100 |
+| `void quitarFiltro()` | desactiva el filtro. La próxima `leer()` vuelve a la lectura directa |
 | `void leer()` | lee la perilla. En un encoder hay que llamarla en cada vuelta del loop |
-| `uint16_t getValor()` | última lectura del potenciómetro, sin mapear. En un encoder queda en 0 |
+| `uint16_t getValor()` | última lectura del potenciómetro, sin mapear (filtrada si el filtro está activo). En un encoder queda en 0 |
 | `uint16_t getValorMapeado()` | última lectura del potenciómetro, convertida al rango mapeado. En un encoder queda en 0 |
 | `Direccion getDireccion()` | `HORARIO`, `ANTIHORARIO` o `QUIETA`, según la última `leer()` |
 | `int32_t getPasos()` | pasos acumulados del encoder. Puede ser negativo |
@@ -118,7 +123,7 @@ void loop()
 
 `setSensibilidad(2)` hace que cada clic sume o reste 2. Si no la llamas, cada clic vale 1. El pulsador del eje, si el encoder tiene uno, se lee como un botón en otra patita.
 
-Ejemplo en [examples/ej04_encoder/](./examples/ej04_encoder/).
+Ejemplo en [examples/ej05_encoder/](./examples/ej05_encoder/).
 
 ## Documentación
 
